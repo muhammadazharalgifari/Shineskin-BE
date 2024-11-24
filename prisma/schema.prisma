@@ -39,6 +39,7 @@ model products {
   price         Int
   description   String
   imageProduct  String
+  stock         Int           @default(0)
   userId        Int
   categoryId    Int
   createdAt     DateTime      @default(now())
