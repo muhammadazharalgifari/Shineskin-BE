@@ -2,52 +2,61 @@ import { request, response } from "express";
 import bcrypt from "bcryptjs";
 import db from "../../connector";
 import path from "path";
-import fs from "fs";
+import multer from "multer";
+
+// konfigurasi tempat penyimpanan gambar
+const uploadDir = path.resolve(__dirname, "../../../public/imageProfile");
+
+// konfigurasi multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const email = req.body.email || req.body.username;
+    const randomDataProfile = email.replace(/[^a-zA-Z0-9]/g, "_");
+
+    cb(null, randomDataProfile + path.extname(file.originalname));
+  },
+});
+
+// validasi type image
+const fileFilter = (req, file, cb) => {
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid image type"), false);
+  }
+};
+
+// konfigurasi multer untuk upload image
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 1024 * 1024 * 5,
+  },
+});
 
 async function createUser(req = request, res = response) {
-  const { username, email, password, confirmPassword, role, imageProfile } =
-    req.body;
+  const { username, email, password, confirmPassword, role } = req.body;
+
   if (password !== confirmPassword) {
     return res
       .status(400)
       .json({ message: "Password and confirm password do not match" });
   }
   const hashPassword = await bcrypt.hash(password, 10);
+
   try {
-    // validasi type image dari image profile
-    const mimeType = imageProfile.match(/data:(image\/\w+);base64,/);
-    if (!mimeType) {
-      return res.status(400).json({ message: "Invalid image type" });
-    }
-
-    // mengambil ekstensi
-    const mime = mimeType[1]; //image/jpeg (or) image/png (or) image/jpg
-    const extension = mime.split("/")[1]; //jpeg (or) png (or) jpg
-
-    // menghapus prefix dari url sebelum mengkonversi base64 ke buffer
-    const base64Image = imageProfile.replace(/^data:image\/\w+;base64,/, "");
-
-    // nama image
-    const fileName = `${username}-profile.${extension}`;
-
-    // konversi base64 ke buffer
-    const buffer = Buffer.from(base64Image, "base64");
-
-    // menyimpan image ke folder
-    const imagePath = path.join(
-      __dirname,
-      "../../../public/imageProfile",
-      fileName
-    );
-    fs.writeFileSync(imagePath, buffer);
-
     const response = await db.users.create({
       data: {
         username,
         email,
         password: hashPassword,
         role,
-        imageProfile: fileName,
+        imageProfile: req.file.filename,
       },
     });
     res.status(201).json({
@@ -64,4 +73,4 @@ async function createUser(req = request, res = response) {
   }
 }
 
-export { createUser };
+export { createUser, upload };
