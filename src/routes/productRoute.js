@@ -3,6 +3,7 @@ import { addProduct } from "../controllers/product/addProduct.js";
 import { validateMiddleUser } from "../middleware/validateMiddleUser.js";
 import { getProducts } from "../controllers/product/showProduct.js";
 import { deleteProduct } from "../controllers/product/deleteProduct.js";
+import { updateProduct } from "../controllers/product/updateProduct.js";
 
 
 
@@ -17,5 +18,8 @@ productRoute.get("/api/products/", validateMiddleUser, getProducts)
 
 // route delete product
 productRoute.delete("/api/product/:id", validateMiddleUser, deleteProduct)
+
+// route update product
+productRoute.put("/api/product/:id",validateMiddleUser, updateProduct)
 
 export default productRoute;
