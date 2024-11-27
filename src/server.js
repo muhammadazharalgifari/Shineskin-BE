@@ -5,6 +5,7 @@ import path from "path";
 import testRoute from "./routes/testRoute";
 import authRoute from "./routes/authRoute";
 import categoryRoute from "./routes/categoryRoute";
+import productRoute from "./routes/productRoute";
 
 // configuration
 const app = express();
@@ -29,10 +30,13 @@ app.use(
   "/profile",
   express.static(path.join(__dirname, "../public/imageProfile"))
 );
+// route static untuk product
+app.use("/public", express.static(path.join(__dirname, "../public/imageProduct"))); // Folder untuk menyimpan gambar
 
 // routes
 app.use(testRoute);
 app.use(authRoute);
+app.use(productRoute);
 app.use(categoryRoute);
 
 app.listen(PORT, () => {
