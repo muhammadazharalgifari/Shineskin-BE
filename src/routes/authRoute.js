@@ -19,8 +19,8 @@ authRoute.post("/api/register", upload.single("imageProfile"), createUser);
 // get all users
 authRoute.get("/api/users", validateMiddleUser, adminOnly, getUsers);
 
-// get user by id
-authRoute.get("/api/user/:id", validateMiddleUser, adminOnly, getUserById);
+// get user by id (untuk profile user)
+authRoute.get("/api/user", validateMiddleUser, getUserById);
 
 // update user
 authRoute.put(

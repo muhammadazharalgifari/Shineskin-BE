@@ -3,16 +3,7 @@ import db from "../../connector";
 
 async function getUserById(req = request, res = response) {
   try {
-    const { id } = req.params;
-    const userId = parseInt(id);
-
-    if (isNaN(userId)) {
-      return res.status(400).json({
-        status: "error",
-        message: "Invalid user ID",
-      });
-    }
-
+    const userId = req.userId;
     const response = await db.users.findUnique({
       where: {
         id: userId,
