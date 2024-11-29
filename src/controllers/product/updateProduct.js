@@ -1,88 +1,96 @@
 import { request, response } from "express";
 import db from "../../connector";
-import { getCategory } from "../categories/getCategory";
 import path from "path";
 import fs from "fs";
+import multer from "multer";
+
+// konfigurasi tempat penyimpanan gambar
+const uploadDir = path.join(__dirname, "../../../public/imageProducts");
+
+// konfigurasi multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const newNameProduct = req.body.name;
+    const randomDataProduct = newNameProduct.replace(/[^a-zA-Z0-9]/g, "_");
+
+    cb(null, randomDataProduct + path.extname(file.originalname));
+  },
+});
+
+// validasi type image
+const fileFilter = (req, file, cb) => {
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid image type"), false);
+  }
+};
+
+// konfigurasi multer untuk upload image product
+const uploadUpdate = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 1024 * 1024 * 5,
+  },
+});
 
 const updateProduct = async (req = request, res = response) => {
-
   try {
-  // Ambil ID dari parameter URL
-  const { id: productId } = req.params;
+    const productId = parseInt(req.params.id);
+    const userId = req.userId;
+    const { name, description, price, stock } = req.body;
 
-  // Validasi ID
-  if (!productId) {
-    return res.status(400).json({
-      status: "error",
-      message: "Product ID is required.",
+    const product = await db.products.findUnique({
+      where: {
+        id: productId,
+      },
     });
-  }
-  const product = await db.products.findUnique({
-    where: {
-      id: parseInt(productId),
-    },
-  });
 
-  if (!product){
-    return res.status(404).json({
-      status: "error",
-      message: "Product Not Found / Not Selected",
-    });
-  }
-
-    const {name, description, price, stock, imageProduct, categoryId } = req.body;
-
-    if (name === "" || name === null) {
-      return res.status(400).json({ message: "Name cannot be empty "});
+    if (!product) {
+      return res.status(404).json({
+        status: "error",
+        message: "Product not found",
+      });
     }
 
-    // get categoriId optional var
-    const categoriProduct = categoryId
-
-
-    // Validate image type
-    const mimeType = imageProduct.match(/data:(image\/\w+);base64,/);
-    if (!mimeType) {
-      return res.status(400).json({ message: "Invalid image type" });
+    let updateImageProduct = product.imageProduct;
+    if (req.file) {
+      // hapus foto lama
+      const imagePath = path.resolve(
+        __dirname,
+        "../../../public/imageProducts",
+        product.imageProduct
+      );
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+      // upload foto baru
+      updateImageProduct = req.file.filename;
     }
-
-    // Extract extension
-    const mime = mimeType[1];
-    const extension = mime.split("/")[1];
-
-    // Remove prefix from base64 string
-    const base64Image = imageProduct.replace(/^data:image\/\w+;base64,/, "");
-
-    // Generate a unique filename
-    const fileName = `${Date.now()}-${name}.${extension}`;
-
-    // Convert base64 to buffer
-    const buffer = Buffer.from(base64Image, "base64");
-
-    // Save image to the specified folder
-    const imagePath = path.join(__dirname, "../../../public/imageProducts", fileName);
-    fs.writeFileSync(imagePath, buffer);
 
     const response = await db.products.update({
       where: {
-        id: parseInt(productId)
+        id: productId,
       },
       data: {
-        name,
-        description,
-        price,
-        stock,
-        imageProduct: product.imageProduct,
-        categoryId: categoriProduct,
+        name: name || product.name,
+        description: description || product.description,
+        price: price ? parseInt(price) : product.price,
+        stock: stock ? parseInt(stock) : product.stock,
+        imageProduct: updateImageProduct,
+        userId,
       },
-      include: {
-        category: getCategory
-      }
     });
-    res.status(201).json({
+
+    res.status(200).json({
       status: "success",
-      message: "Product added successfully",
-      data: response,
+      message: "Product updated successfully",
+      updateProduct: response,
     });
   } catch (error) {
     console.log(error);
@@ -91,8 +99,6 @@ const updateProduct = async (req = request, res = response) => {
       message: error.message,
     });
   }
-}
+};
 
-
-
-export { updateProduct }
+export { updateProduct, uploadUpdate };

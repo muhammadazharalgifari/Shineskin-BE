@@ -70,6 +70,7 @@ const updateUser = async (req = request, res = response) => {
       if (fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
       }
+      // upload foto baru
       imageProfilePath = req.file.filename;
     }
 

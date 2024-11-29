@@ -1,7 +1,6 @@
 import { request, response } from "express";
 import db from "../../connector";
 
-
 async function getProducts(req = request, res = response) {
   try {
     const response = await db.products.findMany({
@@ -13,13 +12,13 @@ async function getProducts(req = request, res = response) {
         stock: true,
         imageProduct: true,
         userId: true,
-        categoryId: true
-      }
+        categoryId: true,
+      },
     });
     res.status(200).json({
       status: "success",
-      data: response
-    })
+      products: response,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -29,4 +28,4 @@ async function getProducts(req = request, res = response) {
   }
 }
 
-export { getProducts }
+export { getProducts };

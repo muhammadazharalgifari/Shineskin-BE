@@ -1,7 +1,7 @@
 import { request, response } from "express";
 import db from "../../connector";
 
-async function getUserById(req = request, res = response) {
+async function getUserByAuth(req = request, res = response) {
   try {
     const userId = req.userId;
     const response = await db.users.findUnique({
@@ -38,4 +38,4 @@ async function getUserById(req = request, res = response) {
   }
 }
 
-export { getUserById };
+export { getUserByAuth };

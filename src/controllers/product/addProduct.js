@@ -1,76 +1,80 @@
-
 import { request, response } from "express";
-import db from "../../connector";
+import multer from "multer";
 import path from "path";
-import fs from "fs";
-import { getCategory } from "../categories/getCategory";
+import db from "../../connector";
 
+// konfigurasi tempat penyimpanan gambar
+const uploadDir = path.resolve(__dirname, "../../../public/imageProducts");
+
+// konfigurasi multer
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const nameProduct = req.body.name;
+    const randomDataProduct = nameProduct.replace(/[^a-zA-Z0-9]/g, "_");
+
+    cb(null, randomDataProduct + path.extname(file.originalname));
+  },
+});
+
+// validasi type image
+const fileFilter = (req, file, cb) => {
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/jpg"];
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Invalid image type"), false);
+  }
+};
+
+// konfigurasi multer untuk upload image product
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 1024 * 1024 * 5,
+  },
+});
 
 async function addProduct(req = request, res = response) {
-  const { name, description, price, stock, imageProduct, categoryId} = req.body;
-
+  const { name, description, price, stock } = req.body;
+  const { categoryId } = req.params;
   // current user
-  const userId = req.userId
-  const findUser = await db.users.findUnique({
-    where: {
-      id: userId,
-    }
-  });
-  if (!userId) {
-    return res.status(400).json({
-      status: "error",
-      message: "User ID is required",
-    });
-  }
+  const userId = req.userId;
 
-  // get categoriId optional var
-  const categoriProduct = categoryId
-
-
-  // Validate image type
-  const mimeType = imageProduct.match(/data:(image\/\w+);base64,/);
-  if (!mimeType) {
-    return res.status(400).json({ message: "Invalid image type" });
-  }
-
+  // Create a new product
   try {
-  // Extract extension
-  const mime = mimeType[1];
-  const extension = mime.split("/")[1];
+    const category = await db.categories.findUnique({
+      where: {
+        id: parseInt(categoryId),
+      },
+    });
 
-  // Remove prefix from base64 string
-  const base64Image = imageProduct.replace(/^data:image\/\w+;base64,/, "");
-
-  // Generate a unique filename
-  const fileName = `${Date.now()}-${name}.${extension}`;
-
-  // Convert base64 to buffer
-  const buffer = Buffer.from(base64Image, "base64");
-
-  // Save image to the specified folder
-  const imagePath = path.join(__dirname, "../../../public/imageProducts", fileName);
-  fs.writeFileSync(imagePath, buffer);
-
-
+    if (!category) {
+      return res.status(404).json({
+        status: "error",
+        message: "Category does not exist",
+      });
+    }
 
     const response = await db.products.create({
       data: {
         name,
         description,
-        price,
-        stock,
-        imageProduct: fileName,
-        userId: findUser.id,
-        categoryId: categoriProduct
+        price: parseInt(price),
+        stock: parseInt(stock),
+        imageProduct: req.file.filename,
+        userId,
+        categoryId: category.id,
       },
-      include: {
-        category: getCategory
-      }
     });
+
     res.status(201).json({
       status: "success",
       message: "Product added successfully",
-      data: response,
+      product: response,
     });
   } catch (error) {
     console.log(error);
@@ -81,7 +85,4 @@ async function addProduct(req = request, res = response) {
   }
 }
 
-
-
-
-export { addProduct };
+export { addProduct, upload };

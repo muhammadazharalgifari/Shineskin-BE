@@ -5,7 +5,7 @@ import { PrismaClient } from "@prisma/client";
 // Inisialisasi Prisma Client
 const prisma = new PrismaClient();
 
-async function category(req = request, res = response) {
+async function createCategory(req = request, res = response) {
   const { name } = req.body;
 
   try {
@@ -36,10 +36,11 @@ async function category(req = request, res = response) {
         name,
       },
     });
+
     res.status(201).json({
       status: "success",
       message: "Category created successfully",
-      data: response,
+      category: response,
     });
   } catch (error) {
     console.log(error);
@@ -50,4 +51,4 @@ async function category(req = request, res = response) {
   }
 }
 
-export { category };
+export { createCategory };

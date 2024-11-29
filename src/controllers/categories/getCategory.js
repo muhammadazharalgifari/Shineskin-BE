@@ -12,7 +12,7 @@ async function getCategory(req = request, res = response) {
     });
     res.status(200).json({
       status: "success",
-      message: "Get category successfully",
+      message: "Get categories successfully",
       data: response,
     });
   } catch (error) {
