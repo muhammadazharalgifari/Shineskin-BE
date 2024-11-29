@@ -34,6 +34,7 @@ async function login(req = request, res = response) {
       status: "success",
       message: "Login Successfully",
       token: token,
+      role: findUser.role,
     });
   } catch (error) {
     console.log(error);
