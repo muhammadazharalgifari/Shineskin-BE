@@ -4,6 +4,7 @@ import { validateMiddleUser } from "../middleware/validateMiddleUser.js";
 import { getProducts } from "../controllers/product/showProduct.js";
 import { deleteProduct } from "../controllers/product/deleteProduct.js";
 import { updateProduct } from "../controllers/product/updateProduct.js";
+import { getProductsByCategory } from "../controllers/product/getProductsByCategory.js";
 
 
 
@@ -21,5 +22,8 @@ productRoute.delete("/api/product/:id", validateMiddleUser, deleteProduct)
 
 // route update product
 productRoute.put("/api/product/:id",validateMiddleUser, updateProduct)
+
+// route GetProductsBy CategoryId
+productRoute.get("/api/:category/products", validateMiddleUser, getProductsByCategory)
 
 export default productRoute;
