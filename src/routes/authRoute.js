@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { getUsers } from "../controllers/auth/getUsers";
 import { createUser, upload } from "../controllers/auth/createUser";
-import { validateMiddleUser } from "../middleware/validateMiddleUser";
-import { login } from "../controllers/auth/login";
-import { getUserById } from "../controllers/auth/getUserById";
-import adminOnly from "../middleware/adminOnly";
-import { updateUser, uploadUpdate } from "../controllers/auth/updateUser";
 import { deleteUser } from "../controllers/auth/deleteUser";
+import { getUserByAuth } from "../controllers/auth/getUserByAuth";
+import { getUsers } from "../controllers/auth/getUsers";
+import { login } from "../controllers/auth/login";
+import { updateUser, uploadUpdate } from "../controllers/auth/updateUser";
+import adminOnly from "../middleware/adminOnly";
+import { validateMiddleUser } from "../middleware/validateMiddleUser";
 
 const authRoute = new Router();
 
@@ -19,8 +19,8 @@ authRoute.post("/api/register", upload.single("imageProfile"), createUser);
 // get all users
 authRoute.get("/api/users", validateMiddleUser, adminOnly, getUsers);
 
-// get user by id
-authRoute.get("/api/user/:id", validateMiddleUser, adminOnly, getUserById);
+// get user by id (untuk profile user)
+authRoute.get("/api/user", validateMiddleUser, getUserByAuth);
 
 // update user
 authRoute.put(

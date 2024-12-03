@@ -2,11 +2,10 @@ import { request, response } from "express";
 import db from "../../connector";
 import { PrismaClient } from "@prisma/client";
 
-
 // Inisialisasi Prisma Client
 const prisma = new PrismaClient();
 
-async function category(req = request, res = response) {
+async function createCategory(req = request, res = response) {
   const { name } = req.body;
 
   try {
@@ -21,8 +20,8 @@ async function category(req = request, res = response) {
     // pengecekan nama kategori yg sudah ada
     const existingCategory = await prisma.categories.findFirst({
       where: {
-        name: name
-      }
+        name: name,
+      },
     });
 
     if (existingCategory) {
@@ -32,16 +31,16 @@ async function category(req = request, res = response) {
       });
     }
 
-
     const response = await db.categories.create({
       data: {
         name,
       },
-    })
+    });
+
     res.status(201).json({
       status: "success",
-      message: "Register successfully",
-      data: response,
+      message: "Category created successfully",
+      category: response,
     });
   } catch (error) {
     console.log(error);
@@ -49,8 +48,7 @@ async function category(req = request, res = response) {
       status: "error",
       message: error.message,
     });
-    
   }
-};
+}
 
-export { category };
+export { createCategory };

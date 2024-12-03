@@ -45,6 +45,7 @@ const updateUser = async (req = request, res = response) => {
   try {
     const userId = req.userId;
     const { username, email, password, confirmPassword } = req.body;
+
     const user = await db.users.findUnique({
       where: {
         id: userId,
@@ -69,6 +70,7 @@ const updateUser = async (req = request, res = response) => {
       if (fs.existsSync(imagePath)) {
         fs.unlinkSync(imagePath);
       }
+      // upload foto baru
       imageProfilePath = req.file.filename;
     }
 

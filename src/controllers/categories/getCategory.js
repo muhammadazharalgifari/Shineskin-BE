@@ -12,8 +12,9 @@ async function getCategory(req = request, res = response) {
     });
     res.status(200).json({
       status: "success",
-      data: response
-    })
+      message: "Get categories successfully",
+      data: response,
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -23,4 +24,4 @@ async function getCategory(req = request, res = response) {
   }
 }
 
-export { getCategory }
+export { getCategory };
