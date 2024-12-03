@@ -11,7 +11,6 @@ import {
 import adminOnly from "../middleware/adminOnly.js";
 import { getProductById } from "../controllers/product/getProductById.js";
 
-
 const productRoute = new Router();
 
 // route add product
@@ -44,10 +43,13 @@ productRoute.put(
 );
 
 // route GetProductsBy CategoryId
-productRoute.get("/api/:category/products", validateMiddleUser, getProductsByCategory)
+productRoute.get(
+  "/api/:category/products",
+  validateMiddleUser,
+  getProductsByCategory
+);
 
 // route GetProductById
-productRoute.get("/api/product/:id", validateMiddleUser, getProductById )
+productRoute.get("/api/product/:id", validateMiddleUser, getProductById);
 
 export default productRoute;
-

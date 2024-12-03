@@ -7,6 +7,7 @@ import { login } from "../controllers/auth/login";
 import { updateUser, uploadUpdate } from "../controllers/auth/updateUser";
 import adminOnly from "../middleware/adminOnly";
 import { validateMiddleUser } from "../middleware/validateMiddleUser";
+import { getUserById } from "../controllers/auth/getUserById";
 
 const authRoute = new Router();
 
@@ -19,8 +20,11 @@ authRoute.post("/api/register", upload.single("imageProfile"), createUser);
 // get all users
 authRoute.get("/api/users", validateMiddleUser, adminOnly, getUsers);
 
-// get user by id (untuk profile user)
+// get user by auth (untuk profile user)
 authRoute.get("/api/user", validateMiddleUser, getUserByAuth);
+
+// get user by id
+authRoute.get("/api/user/:id", validateMiddleUser, adminOnly, getUserById);
 
 // update user
 authRoute.put(
