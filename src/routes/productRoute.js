@@ -3,11 +3,13 @@ import { addProduct, upload } from "../controllers/product/addProduct.js";
 import { validateMiddleUser } from "../middleware/validateMiddleUser.js";
 import { getProducts } from "../controllers/product/getProducts.js";
 import { deleteProduct } from "../controllers/product/deleteProduct.js";
+import { getProductsByCategory } from "../controllers/product/getProductsByCategory.js";
 import {
   updateProduct,
   uploadUpdate,
 } from "../controllers/product/updateProduct.js";
 import adminOnly from "../middleware/adminOnly.js";
+
 
 const productRoute = new Router();
 
@@ -40,4 +42,8 @@ productRoute.put(
   updateProduct
 );
 
+// route GetProductsBy CategoryId
+productRoute.get("/api/:category/products", validateMiddleUser, getProductsByCategory)
+
 export default productRoute;
+
