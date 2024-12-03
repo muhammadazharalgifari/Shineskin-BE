@@ -9,6 +9,7 @@ import {
   uploadUpdate,
 } from "../controllers/product/updateProduct.js";
 import adminOnly from "../middleware/adminOnly.js";
+import { getProductById } from "../controllers/product/getProductById.js";
 
 
 const productRoute = new Router();
@@ -44,6 +45,9 @@ productRoute.put(
 
 // route GetProductsBy CategoryId
 productRoute.get("/api/:category/products", validateMiddleUser, getProductsByCategory)
+
+// route GetProductById
+productRoute.get("/api/product/:id", validateMiddleUser, getProductById )
 
 export default productRoute;
 
