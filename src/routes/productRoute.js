@@ -3,7 +3,6 @@ import { addProduct, upload } from "../controllers/product/addProduct.js";
 import { validateMiddleUser } from "../middleware/validateMiddleUser.js";
 import { getProducts } from "../controllers/product/getProducts.js";
 import { deleteProduct } from "../controllers/product/deleteProduct.js";
-import { updateProduct } from "../controllers/product/updateProduct.js";
 import { getProductsByCategory } from "../controllers/product/getProductsByCategory.js";
 import {
   updateProduct,
