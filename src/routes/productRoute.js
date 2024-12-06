@@ -50,6 +50,11 @@ productRoute.get(
 );
 
 // route GetProductById
-productRoute.get("/api/product/:id", validateMiddleUser, getProductById);
+productRoute.get(
+  "/api/product/:id",
+  validateMiddleUser,
+  adminOnly,
+  getProductById
+);
 
 export default productRoute;

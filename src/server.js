@@ -31,7 +31,10 @@ app.use(
   express.static(path.join(__dirname, "../public/imageProfile"))
 );
 // route static untuk product
-app.use("/public", express.static(path.join(__dirname, "../public/imageProduct"))); // Folder untuk menyimpan gambar
+app.use(
+  "/public",
+  express.static(path.join(__dirname, "../public/imageProducts"))
+); // Folder untuk menyimpan gambar
 
 // routes
 app.use(testRoute);
