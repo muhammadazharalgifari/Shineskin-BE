@@ -24,8 +24,8 @@ model users {
   updatedAt     DateTime      @updatedAt
 
   products      products[]
-  cart          carts[]
   transaction   transactions[]
+  cartItem      cartItems[]
 }
 
 model categories {
@@ -49,51 +49,38 @@ model products {
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 
-  user          users         @relation(fields: [userId],references: [id])
-  category      categories?   @relation(fields: [categoryId],references: [id])
+  user          users         @relation(fields: [userId],references: [id], onDelete: Cascade)
+  category      categories?   @relation(fields: [categoryId],references: [id], onDelete: Cascade)
 
   cartItem      cartItems[]
-  transaction   transactions[]
 }
 
-model carts {
-  id            Int      @id @default(autoincrement())
-  user_id       Int
-  total_price   Decimal
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-
-  user          users   @relation(fields: [user_id], references: [id])
-
-  cartItem      cartItems[]
-  transaction   transactions[]
-}
 
 model cartItems {
   id              Int           @id @default(autoincrement())
-  cartId          Int
+  userId          Int
+  transactionId   Int
   productId       Int
   quantity        Int           @default(1)
   subtotal_price  Decimal
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  product         products      @relation(fields: [productId], references: [id])
-  cart            carts         @relation(fields: [cartId], references: [id])
+  product         products      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  transaction     transactions  @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  user            users         @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model transactions {
   id              Int          @id @default(autoincrement())
-  productId       Int
-  cartId          Int
   userId          Int
-  amount          Int
+  total_price     Decimal
   status          String
   paymentUrl      String?
-  createdAt       DateTime
-  updatedAt       DateTime
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
-  product         products     @relation(fields: [productId], references: [id])
-  cart            carts        @relation(fields: [cartId], references: [id])
-  user            users        @relation(fields: [userId], references: [id])
+  user            users        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  cartItems       cartItems[]
 }
