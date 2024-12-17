@@ -3,7 +3,6 @@ node_modules
 .env
 README.md
 src/controllers/cartItem/updateCartItem.js
-src/controllers/cartItem/getCartItemByUserId.js
 src/controllers/cartItem/deleteProductCart.js
 src/routes/transactionRoute.js
 

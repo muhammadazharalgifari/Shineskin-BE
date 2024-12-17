@@ -1,9 +1,5 @@
 import { request, response } from "express";
 import db from "../../connector";
-import { PrismaClient } from "@prisma/client";
-
-// Inisialisasi Prisma Client
-// const prisma = new PrismaClient();
 
 async function createCartItem(req = request, res = response) {
   const { productId, quantity } = req.body;
