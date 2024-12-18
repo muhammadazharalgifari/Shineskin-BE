@@ -23,7 +23,10 @@ productRoute.post(
 );
 
 // route all products
-productRoute.get("/api/products", validateMiddleUser, getProducts);
+productRoute.get("/api/products",
+  validateMiddleUser,
+  getProducts
+);
 
 // route delete product
 productRoute.delete(

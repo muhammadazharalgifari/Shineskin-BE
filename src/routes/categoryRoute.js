@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createCategory } from "../controllers/categories/createCategory.js";
+import { createCategory, upload } from "../controllers/categories/createCategory.js";
 import { deleteCategory } from "../controllers/categories/deteleCategory.js";
 import { getCategory } from "../controllers/categories/getCategory.js";
 import adminOnly from "../middleware/adminOnly.js";
@@ -12,11 +12,16 @@ categoryRoute.post(
   "/api/category",
   validateMiddleUser,
   adminOnly,
+  upload.single("imageCategory"),
   createCategory
 );
 
 // route getall category
-categoryRoute.get("/api/categories", validateMiddleUser, getCategory);
+categoryRoute.get(
+  "/api/categories",
+  validateMiddleUser,
+  getCategory
+);
 
 // route delete category
 categoryRoute.delete(

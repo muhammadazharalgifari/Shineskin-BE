@@ -7,6 +7,8 @@ async function getCategory(req = request, res = response) {
       select: {
         id: true,
         name: true,
+        description: true,
+        imageCategory: true,
         products: true,
       },
     });
