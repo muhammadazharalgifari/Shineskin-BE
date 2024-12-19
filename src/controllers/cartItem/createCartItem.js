@@ -2,7 +2,6 @@ import { request, response } from "express";
 import db from "../../connector";
 
 async function createCartItem(req = request, res = response) {
-  // const { productId, quantity } = req.body;
   const { quantity } = req.body;
   const { productId } = req.params;
 
