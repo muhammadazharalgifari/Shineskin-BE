@@ -1,5 +1,7 @@
 import { request, response } from "express";
 import db from "../../connector";
+import path from "path";
+import fs from "fs";
 
 async function deleteUser(req = request, res = response) {
   try {
@@ -17,6 +19,9 @@ async function deleteUser(req = request, res = response) {
       where: {
         id: userId,
       },
+      select: {
+        imageProfile: true,
+      },
     });
 
     if (!findUser) {
@@ -25,6 +30,19 @@ async function deleteUser(req = request, res = response) {
         message: `User with ID ${id} not found`,
       });
     }
+
+    // Tentukan path gambar berdasarkan path di database
+    const imagePath = path.join(__dirname, "../../../public/imageProfile"); // Ganti dengan path yang sesuai
+    var filepath = imagePath + "/" + findUser.imageProfile;
+
+    // Hapus local file
+    fs.unlink(filepath, (err) => {
+      if (err) {
+        console.error("Failed to delete image:", err);
+      } else {
+        console.log("Image deleted successfully");
+      }
+    });
 
     const response = await db.users.delete({
       where: {

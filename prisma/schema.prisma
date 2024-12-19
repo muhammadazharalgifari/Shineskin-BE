@@ -22,14 +22,20 @@ model users {
   role          String
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
   products      products[]
+  transaction   transactions[]
+  cartItem      cartItems[]
 }
 
 model categories {
   id            Int           @id @default(autoincrement())
   name          String
+  description   String
+  imageCategory String
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
   products      products[]
 }
 
@@ -44,6 +50,39 @@ model products {
   categoryId    Int
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
-  user          users         @relation(fields: [userId],references: [id])
-  category      categories?   @relation(fields: [categoryId],references: [id])
+
+  user          users         @relation(fields: [userId],references: [id], onDelete: Cascade)
+  category      categories?   @relation(fields: [categoryId],references: [id], onDelete: Cascade)
+
+  cartItem      cartItems[]
+}
+
+
+model cartItems {
+  id              Int           @id @default(autoincrement())
+  userId          Int
+  transactionId   Int
+  productId       Int
+  quantity        Int           @default(1)
+  subtotal_price  Decimal
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  product         products      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  transaction     transactions  @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  user            users         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model transactions {
+  id              Int          @id @default(autoincrement())
+  userId          Int
+  total_price     Decimal
+  status          String
+  paymentUrl      String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user            users        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  cartItems       cartItems[]
 }
