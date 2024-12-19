@@ -8,7 +8,11 @@ import { updateCartItemById } from "../controllers/cartItem/updateCartItem.js";
 const cartItemRoute = new Router();
 
 // route add cart item
-cartItemRoute.post("/api/cart-item", validateMiddleUser, createCartItem);
+cartItemRoute.post(
+  "/api/cart-item/:productId",
+  validateMiddleUser,
+  createCartItem
+);
 
 // route get all cart items by cart id
 cartItemRoute.get(
