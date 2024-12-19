@@ -3,8 +3,9 @@ import db from "../../connector";
 
 async function getCartItemByUserId(req = request, res = response) {
   try {
-    const { userId } = req.params;
 
+    // current user
+    const userId = req.userId;
 
     const response = await db.users.findUnique({
       where: {
