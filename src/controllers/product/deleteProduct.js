@@ -1,5 +1,7 @@
 import { request, response } from "express";
 import db from "../../connector";
+import path from "path";
+import fs from "fs";
 
 async function deleteProduct(req = request, res = response) {
   try {
@@ -16,7 +18,10 @@ async function deleteProduct(req = request, res = response) {
     const findProduct = await db.products.findUnique({
       where: {
         id: productId,
-      }
+      },
+      select: {
+        imageProduct: true,
+      },
     });
 
     if (!findProduct) {
@@ -25,6 +30,20 @@ async function deleteProduct(req = request, res = response) {
         message: `Product with ID ${id} not found`,
       });
     }
+
+    // Tentukan path gambar berdasarkan path di database
+    const imagePath = path.join(__dirname, "../../../public/imageProducts"); // Ganti dengan path yang sesuai
+    var filepath = imagePath + "/" + findProduct.imageProduct;
+
+    // Hapus local file
+    fs.unlink(filepath, (err) => {
+      if (err) {
+        console.error("Failed to delete image:", err);
+      } else {
+        console.log("Image deleted successfully");
+      }
+    });
+
 
     const response = await db.products.delete({
       where: {

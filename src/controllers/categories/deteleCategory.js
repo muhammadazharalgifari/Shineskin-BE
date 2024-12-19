@@ -1,5 +1,7 @@
 import { request, response } from "express";
 import db from "../../connector";
+import path from "path";
+import fs from "fs";
 
 async function deleteCategory(req = request, res = response) {
   try {
@@ -25,6 +27,20 @@ async function deleteCategory(req = request, res = response) {
         message: `Category with ID ${id} not found`,
       });
     }
+
+
+    // Tentukan path gambar berdasarkan path di database
+    const imagePath = path.join(__dirname, "../../../public/imageCategory"); // Ganti dengan path yang sesuai
+    var filepath = imagePath + "/" + findCategory.imageCategory;
+
+    // Hapus local file
+    fs.unlink(filepath, (err) => {
+      if (err) {
+        console.error("Failed to delete image:", err);
+      } else {
+        console.log("Image deleted successfully");
+      }
+    });
 
     const response = await db.categories.delete({
       where: {
