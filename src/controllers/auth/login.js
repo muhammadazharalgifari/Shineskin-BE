@@ -29,7 +29,7 @@ async function login(req = request, res = response) {
 
     // jwt
     const key = process.env.JWT_SECRET_KEY;
-    const token = jwt.sign({ userId: findUser.id }, key, { expiresIn: "2h" });
+    const token = jwt.sign({ userId: findUser.id }, key, { expiresIn: "1d" });
     res.status(200).json({
       status: "success",
       message: "Login Successfully",
