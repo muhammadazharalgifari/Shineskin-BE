@@ -3,7 +3,6 @@ import db from "../../connector";
 
 async function getCartItemByUserId(req = request, res = response) {
   try {
-
     // current user
     const userId = req.userId;
 
@@ -31,9 +30,21 @@ async function getCartItemByUserId(req = request, res = response) {
       });
     }
 
+    // ambil data subtotal terbaru
+    const totalPrice = await db.transactions.findFirst({
+      where: {
+        userId: parseInt(userId),
+        status: "PENDING",
+      },
+      select: {
+        total_price: true,
+      },
+    })
+
     res.status(200).json({
       status: "success",
       data: response,
+      subtotal: totalPrice.total_price
     });
   } catch (error) {
     console.log(error);

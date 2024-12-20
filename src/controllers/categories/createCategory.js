@@ -1,11 +1,7 @@
 import { request, response } from "express";
 import db from "../../connector";
-import { PrismaClient } from "@prisma/client";
 import multer from "multer";
 import path from "path";
-
-// Inisialisasi Prisma Client
-const prisma = new PrismaClient();
 
 // konfigurasi tempat penyimpanan gambar
 const uploadDir = path.resolve(__dirname, "../../../public/imageCategory");
@@ -55,7 +51,7 @@ async function createCategory(req = request, res = response) {
     }
 
     // pengecekan nama kategori yg sudah ada
-    const existingCategory = await prisma.categories.findFirst({
+    const existingCategory = await db.categories.findFirst({
       where: {
         name: name,
       },
