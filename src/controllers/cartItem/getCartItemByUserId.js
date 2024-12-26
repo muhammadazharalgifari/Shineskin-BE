@@ -65,7 +65,6 @@ async function getCartItemByUserId(req = request, res = response) {
         product_name: item.product.name,
         image_product: item.product.imageProduct,
         subtotal_price: item.subtotal_price,
-        total_price: totalPrice.total_price,
       };
     });
 
