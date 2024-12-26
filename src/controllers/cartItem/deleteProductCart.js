@@ -1,8 +1,12 @@
 import { request, response } from "express";
 import db from "../../connector";
+import { updateTransactionTotal } from "../../service/transactionService";
 
 async function deleteProductCart(req = request, res = response) {
   try {
+    // current user
+    const userId = req.userId;
+
     const { id } = req.params;
     const productId = parseInt(id);
 
@@ -24,13 +28,16 @@ async function deleteProductCart(req = request, res = response) {
         status: "error",
         message: `Cart item with ID ${id} not found`,
       });
-    }
+    };
 
     const response = await db.cartItems.delete({
       where:{
         id: productId
       }
     });
+
+    // update Transaction total_price
+    const updateTransaction = await updateTransactionTotal(userId);
 
     res.status(200).json({
       status: "success",

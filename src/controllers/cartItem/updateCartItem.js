@@ -1,9 +1,14 @@
 import { request, response } from "express";
 import db from "../../connector";
+import { updateTransactionTotal } from "../../service/transactionService";
 
 async function updateCartItemById(req = request, res = response) {
   try {
+    // current user
+    const userId = req.userId;
+
     const { id } = req.params;
+    const {quantity} = req.body;
     const cartItemId = parseInt(id);
 
     if (isNaN(cartItemId)) {
@@ -12,11 +17,6 @@ async function updateCartItemById(req = request, res = response) {
         message: "Invalid cart item ID",
       });
     }
-
-    // current user
-    const userId = req.userId;
-
-    const {quantity} = req.body;
 
     // Cari cart item berdasarkan ID dan user
     const cartItem = await db.cartItems.findUnique({
@@ -36,9 +36,8 @@ async function updateCartItemById(req = request, res = response) {
     // Mengambil harga produk dari relasi
     const productPrice = cartItem.product.price;
 
-     // Menghitung subtotal_price yang baru
-     const subtotalPrice = productPrice * quantity;
-
+    // Menghitung subtotal_price yang baru
+    const subtotalPrice = productPrice * quantity;
 
     const response = await db.cartItems.update({
       where: {
@@ -58,6 +57,9 @@ async function updateCartItemById(req = request, res = response) {
         message: `Cart item with ID ${id} not found`,
       });
     }
+
+    // update Transaction total_price
+    const updateTransaction = await updateTransactionTotal(userId);
 
     res.status(200).json({
       status: "success",
