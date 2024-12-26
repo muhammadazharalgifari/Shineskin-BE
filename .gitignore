@@ -2,5 +2,10 @@ node_modules
 # Keep environment variables out of version control
 .env
 README.md
+/src/controllers/transaction/payment.js
+/src/controllers/transaction/createTransaction.js
+/src/controllers/transaction/updateTransaction.js
 
+/src/routes/paymentRoute.js
+/prisma/db_backup.sqlite
 test.js

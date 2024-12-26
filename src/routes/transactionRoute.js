@@ -6,8 +6,10 @@ import adminOnly from "../middleware/adminOnly.js";
 
 const transactionRoute = new Router();
 
+// route get all transactions
 transactionRoute.get("/api/transactions", validateMiddleUser, adminOnly , getAllTransactions);
 
+// route get transactions by Auth
 transactionRoute.get("/api/auth-transactions", validateMiddleUser, getTransactionByAuth);
 
 export default transactionRoute;

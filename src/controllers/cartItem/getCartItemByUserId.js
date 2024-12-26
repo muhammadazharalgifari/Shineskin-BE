@@ -12,7 +12,21 @@ async function getCartItemByUserId(req = request, res = response) {
       },
       select: {
         id: true,
-        cartItem: true
+        cartItem: {
+          select: {
+            id: true,
+            quantity: true,
+            subtotal_price: true,
+            transaction: true,
+            product: {
+              select: {
+                name: true,
+                price: true,
+                imageProduct: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -30,21 +44,36 @@ async function getCartItemByUserId(req = request, res = response) {
       });
     }
 
-    // ambil data subtotal terbaru
+
+    // ambil data total_price terbaru
     const totalPrice = await db.transactions.findFirst({
       where: {
         userId: parseInt(userId),
         status: "PENDING",
       },
       select: {
+        id: true,
         total_price: true,
       },
     })
 
+    // Formatter CartItem
+    const formatterCartItems = response.cartItem.map((item) => {
+      return {
+        id: item.id,
+        quantity: item.quantity,
+        product_name: item.product.name,
+        image_product: item.product.imageProduct,
+        subtotal_price: item.subtotal_price,
+        total_price: totalPrice.total_price,
+      };
+    });
+
     res.status(200).json({
       status: "success",
-      data: response,
-      subtotal: totalPrice.total_price
+      data: formatterCartItems,
+      transaction_id: totalPrice.id,
+      total_price: totalPrice.total_price
     });
   } catch (error) {
     console.log(error);
