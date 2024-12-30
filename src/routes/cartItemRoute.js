@@ -35,5 +35,4 @@ cartItemRoute.put(
   updateCartItemById
 )
 
-
 export default cartItemRoute;

@@ -3,7 +3,6 @@ import db from "../../connector";
 
 async function getCartItemByUserId(req = request, res = response) {
   try {
-
     // current user
     const userId = req.userId;
 
@@ -13,7 +12,17 @@ async function getCartItemByUserId(req = request, res = response) {
       },
       select: {
         id: true,
-        cartItem: true
+        cartItem: {
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                price: true,
+              },
+            },
+          },
+        },
       },
     });
 

@@ -9,7 +9,6 @@ async function createCartItem(req = request, res = response) {
   const userId = req.userId;
 
   try {
-
     // Cari produk berdasarkan ID
     const product = await db.products.findUnique({
       where: {
@@ -84,12 +83,15 @@ async function createCartItem(req = request, res = response) {
       },
       select: {
         id: true,
-        subtotal_price: true
+        subtotal_price: true,
       },
     });
 
     // menghitung total price dari list of cart itemID
-    const totalPrice = listCartItem.reduce((total, item) => total + parseFloat(item.subtotal_price.toString()), 0);
+    const totalPrice = listCartItem.reduce(
+      (total, item) => total + (parseFloat(item.subtotal_price) * item.quantity || 0),
+      0
+    );
 
     // update total price ke db
     const updateTransaction = await db.transactions.update({
@@ -104,10 +106,13 @@ async function createCartItem(req = request, res = response) {
     res.status(201).json({
       status: "success",
       message: "Cart item created successfully",
-      data: response,
+      data: {
+        ...response,
+        name: product.name,
+        price: product.price,
+      },
       total_price: updateTransaction.total_price,
     });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
