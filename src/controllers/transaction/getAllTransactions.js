@@ -5,6 +5,9 @@ async function getAllTransactions(req = request, res = response) {
   try {
 
     const response = await db.transactions.findMany({
+      orderBy: {
+        createdAt: "desc"
+      },
       select: {
         id: true,
         user: {
@@ -23,13 +26,6 @@ async function getAllTransactions(req = request, res = response) {
           }
         }
       },
-      // include: {
-      //   cartItems: {
-      //     include: {
-      //       product: true
-      //     }
-      //   }
-      // }
     });
     res.status(200).json({
       status: "success",
