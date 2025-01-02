@@ -17,7 +17,19 @@ async function getAllTransactions(req = request, res = response) {
         status: true,
         createdAt: true,
         updatedAt: true,
-      }
+        cartItems: {
+          include: {
+            product: true,
+          }
+        }
+      },
+      // include: {
+      //   cartItems: {
+      //     include: {
+      //       product: true
+      //     }
+      //   }
+      // }
     });
     res.status(200).json({
       status: "success",
