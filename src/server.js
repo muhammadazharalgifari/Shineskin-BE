@@ -2,12 +2,12 @@ import express from "express";
 import cors from "cors";
 import env from "dotenv";
 import path from "path";
-import testRoute from "./routes/testRoute";
 import authRoute from "./routes/authRoute";
 import categoryRoute from "./routes/categoryRoute";
 import productRoute from "./routes/productRoute";
 import cartItemRoute from "./routes/cartItemRoute";
 import transactionRoute from "./routes/transactionRoute";
+import testRoute from "./routes/testRoute";
 // import paymentRoute from "./routes/paymentRoute";
 
 // configuration
@@ -46,7 +46,6 @@ app.use(
 ); // Folder untuk menyimpan gambar
 
 // routes
-app.use(testRoute);
 app.use(authRoute);
 app.use(productRoute);
 app.use(categoryRoute);
