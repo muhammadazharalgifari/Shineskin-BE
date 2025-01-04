@@ -7,7 +7,6 @@ import categoryRoute from "./routes/categoryRoute";
 import productRoute from "./routes/productRoute";
 import cartItemRoute from "./routes/cartItemRoute";
 import transactionRoute from "./routes/transactionRoute";
-import testRoute from "./routes/testRoute";
 // import paymentRoute from "./routes/paymentRoute";
 
 // configuration
