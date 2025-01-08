@@ -1,5 +1,6 @@
 import { request, response } from "express";
 import db from "../../connector";
+import { updateTransactionTotal } from "../../service/transactionService";
 
 async function createCartItem(req = request, res = response) {
   const { quantity } = req.body;
@@ -76,42 +77,13 @@ async function createCartItem(req = request, res = response) {
       },
     });
 
-    // ambil data list id cart item
-    const listCartItem = await db.cartItems.findMany({
-      where: {
-        userId: parseInt(userId),
-      },
-      select: {
-        id: true,
-        subtotal_price: true,
-      },
-    });
-
-    // menghitung total price dari list of cart itemID
-    const totalPrice = listCartItem.reduce(
-      (total, item) => total + (parseFloat(item.subtotal_price) * item.quantity || 0),
-      0
-    );
-
-    // update total price ke db
-    const updateTransaction = await db.transactions.update({
-      where: {
-        id: transaction.id,
-      },
-      data: {
-        total_price: totalPrice,
-      },
-    });
+    // update Transaction total_price
+    const updateTransaction = await updateTransactionTotal(userId);
 
     res.status(201).json({
       status: "success",
       message: "Cart item created successfully",
-      data: {
-        ...response,
-        name: product.name,
-        price: product.price,
-      },
-      total_price: updateTransaction.total_price,
+      data: response,
     });
   } catch (error) {
     console.log(error);

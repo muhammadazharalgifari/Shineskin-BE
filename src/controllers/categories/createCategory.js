@@ -1,7 +1,7 @@
 import { request, response } from "express";
+import db from "../../connector";
 import multer from "multer";
 import path from "path";
-import db from "../../connector";
 
 // konfigurasi tempat penyimpanan gambar
 const uploadDir = path.resolve(__dirname, "../../../public/imageCategory");

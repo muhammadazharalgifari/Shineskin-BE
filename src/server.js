@@ -7,7 +7,8 @@ import authRoute from "./routes/authRoute";
 import categoryRoute from "./routes/categoryRoute";
 import productRoute from "./routes/productRoute";
 import cartItemRoute from "./routes/cartItemRoute";
-// import transactionRoute from "./routes/transactionRoute";
+import transactionRoute from "./routes/transactionRoute";
+// import paymentRoute from "./routes/paymentRoute";
 
 // configuration
 const app = express();
@@ -50,7 +51,8 @@ app.use(authRoute);
 app.use(productRoute);
 app.use(categoryRoute);
 app.use(cartItemRoute);
-// app.use(transactionRoute);
+app.use(transactionRoute);
+// app.use(paymentRoute);
 
 app.listen(PORT, () => {
   console.log(`
