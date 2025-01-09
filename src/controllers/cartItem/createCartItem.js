@@ -14,6 +14,9 @@ async function createCartItem(req = request, res = response) {
     const product = await db.products.findUnique({
       where: {
         id: parseInt(productId),
+        stock: {
+          gt: 0,
+        },
       },
     });
 
@@ -21,6 +24,13 @@ async function createCartItem(req = request, res = response) {
       return res.status(404).json({
         status: "error",
         message: "Product does not exist",
+      });
+    }
+
+    if (product.stock < quantity) {
+      return res.status(400).json({
+        status: "error",
+        message: "Product out of stock",
       });
     }
 
@@ -77,6 +87,22 @@ async function createCartItem(req = request, res = response) {
         userId,
       },
     });
+
+    // update Product stock
+    const updateStock = await db.products.update({
+      where: {
+        id: parseInt(productId),
+      },
+      data: {
+        stock: product.stock - quantity,
+      },
+    });
+    if (!updateStock) {
+      return res.status(500).json({
+        status: "error",
+        message: "Failed to update product stock",
+      });
+    }
 
     // update Transaction total_price
     const updateTransaction = await updateTransactionTotal(userId);
