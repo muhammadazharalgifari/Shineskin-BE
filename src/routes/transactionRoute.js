@@ -5,6 +5,8 @@ import { getTransactionByAuth } from "../controllers/transaction/getTransactionB
 import adminOnly from "../middleware/adminOnly.js";
 import { updateTransaction, uploadUpdate } from "../controllers/transaction/updateTransaction.js";
 import { statusTransaction } from "../controllers/transaction/statusTransaction.js";
+import { getOmsetTransactionDay } from "../controllers/transaction/getOmsetTransactionDay.js";
+import { getOmsetTransactionMonth } from "../controllers/transaction/getOmsetTransactionMonth.js";
 
 const transactionRoute = new Router();
 
@@ -30,5 +32,20 @@ transactionRoute.put(
   statusTransaction
 );
 
+// route getOmsetTransaction Days
+transactionRoute.get(
+  "/api/omset-day",
+  validateMiddleUser,
+  adminOnly,
+  getOmsetTransactionDay
+);
+
+// route getOmsetTransaction Month
+transactionRoute.get(
+  "/api/omset-month",
+  validateMiddleUser,
+  adminOnly,
+  getOmsetTransactionMonth
+);
 
 export default transactionRoute;
