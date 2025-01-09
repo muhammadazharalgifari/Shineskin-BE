@@ -6,13 +6,13 @@ async function getCartItemByUserId(req = request, res = response) {
     // current user
     const userId = req.userId;
 
-    const response = await db.users.findUnique({
+    const response = await db.transactions.findFirst({
       where: {
-        id: parseInt(userId),
+        userId: parseInt(userId),
+        status: "PENDING",
       },
-      select: {
-        id: true,
-        cartItem: {
+      select:{
+        cartItems: {
           select: {
             id: true,
             quantity: true,
@@ -23,13 +23,12 @@ async function getCartItemByUserId(req = request, res = response) {
                 name: true,
                 price: true,
                 imageProduct: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
+              }
+            }
+          }
+        }
+      }
+    })
     if (isNaN(userId)) {
       return res.status(400).json({
         status: "error",
@@ -58,7 +57,7 @@ async function getCartItemByUserId(req = request, res = response) {
     })
 
     // Formatter CartItem
-    const formatterCartItems = response.cartItem.map((item) => {
+    const formatterCartItems = response.cartItems.map((item) => {
       return {
         id: item.id,
         quantity: item.quantity,
