@@ -101,8 +101,8 @@ function _getCartItemByUserId() {
           res.status(200).json({
             status: "success",
             data: formatterCartItems,
-            transaction_id: totalPrice.id,
-            total_price: totalPrice.total_price
+            transaction_id: totalPrice ? totalPrice.id : null,
+            total_price: totalPrice ? totalPrice.total_price : 0
           });
           _context.next = 22;
           break;

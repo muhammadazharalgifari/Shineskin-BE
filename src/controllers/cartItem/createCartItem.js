@@ -47,6 +47,7 @@ async function createCartItem(req = request, res = response) {
           total_price: 0, // Awal total_price diatur ke 0
           status: "PENDING",
           paymentUrl: null,
+          imageTransaction: null,
         },
       });
     }

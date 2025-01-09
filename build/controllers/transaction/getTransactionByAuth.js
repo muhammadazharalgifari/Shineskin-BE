@@ -47,8 +47,14 @@ function _getTransactionByAuth() {
               id: true,
               status: true,
               total_price: true,
+              imageTransaction: true,
               createdAt: true,
-              updatedAt: true
+              updatedAt: true,
+              cartItems: {
+                include: {
+                  product: true
+                }
+              }
             }
           });
         case 8:

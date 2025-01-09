@@ -9,6 +9,7 @@ var _getAllTransactions = require("../controllers/transaction/getAllTransactions
 var _validateMiddleUser = require("../middleware/validateMiddleUser.js");
 var _getTransactionByAuth = require("../controllers/transaction/getTransactionByAuth.js");
 var _adminOnly = _interopRequireDefault(require("../middleware/adminOnly.js"));
+var _updateTransaction = require("../controllers/transaction/updateTransaction.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
 var transactionRoute = new _express.Router();
 
@@ -17,4 +18,16 @@ transactionRoute.get("/api/transactions", _validateMiddleUser.validateMiddleUser
 
 // route get transactions by Auth
 transactionRoute.get("/api/auth-transactions", _validateMiddleUser.validateMiddleUser, _getTransactionByAuth.getTransactionByAuth);
+
+// route update transaction by Auth
+transactionRoute.put("/api/update-transaction/:id", _validateMiddleUser.validateMiddleUser, _updateTransaction.uploadUpdate.single("imageTransaction"), _updateTransaction.updateTransaction);
+
+// route update product
+// productRoute.put(
+//   "/api/update/product/:id",
+//   validateMiddleUser,
+//   adminOnly,
+//   uploadUpdate.single("imageProduct"),
+//   updateProduct
+// );
 var _default = exports["default"] = transactionRoute;

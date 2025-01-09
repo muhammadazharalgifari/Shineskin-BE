@@ -44,6 +44,12 @@ app.use(
   express.static(path.join(__dirname, "../public/imageCategory"))
 ); // Folder untuk menyimpan gambar
 
+// route static untuk product
+app.use(
+  "/public",
+  express.static(path.join(__dirname, "../public/imageTransaction"))
+); // Folder untuk menyimpan gambar
+
 // routes
 app.use(authRoute);
 app.use(productRoute);

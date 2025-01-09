@@ -41,6 +41,7 @@ function _getAllTransactions() {
               },
               total_price: true,
               status: true,
+              imageTransaction: true,
               createdAt: true,
               updatedAt: true,
               cartItems: {

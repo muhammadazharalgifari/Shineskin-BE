@@ -18,6 +18,7 @@ async function getAllTransactions(req = request, res = response) {
         },
         total_price: true,
         status: true,
+        imageTransaction: true,
         createdAt: true,
         updatedAt: true,
         cartItems: {
