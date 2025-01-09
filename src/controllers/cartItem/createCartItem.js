@@ -45,7 +45,7 @@ async function createCartItem(req = request, res = response) {
     let transaction = await db.transactions.findFirst({
       where: {
         userId: parseInt(userId),
-        status: "PENDING", // initial Status
+        status: "PENDING",
       },
     });
 
@@ -54,7 +54,7 @@ async function createCartItem(req = request, res = response) {
       transaction = await db.transactions.create({
         data: {
           userId: parseInt(userId),
-          total_price: 0, // Awal total_price diatur ke 0
+          total_price: 0, // Initial value 0
           status: "PENDING",
           paymentUrl: null,
           imageTransaction: null,

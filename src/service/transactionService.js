@@ -2,8 +2,29 @@
 import db from "../connector";
 
 export async function updateTransactionTotal(userId) {
+
+  const pendingTransaction = await db.transactions.findFirst({
+    where: {
+      userId,
+      status: "PENDING"
+    },
+    select: {
+      id: true
+    }
+  });
+
+  if (!pendingTransaction){
+    return resizeBy.status(400).json({
+      status: "error",
+      message: "Transaction Pending not found"
+    })
+  }
+
   const cartItems = await db.cartItems.findMany({
-    where: { userId },
+    where: {
+      userId,
+      transactionId: pendingTransaction.id
+    },
     select: { subtotal_price: true }
   });
 
