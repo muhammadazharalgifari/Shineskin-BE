@@ -74,15 +74,16 @@ model cartItems {
 }
 
 model transactions {
-  id              Int          @id @default(autoincrement())
-  userId          Int
-  total_price     Decimal
-  status          String
-  paymentUrl      String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id               Int          @id @default(autoincrement())
+  userId           Int
+  total_price      Decimal
+  status           String
+  paymentUrl       String?
+  imageTransaction String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
-  user            users        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             users        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  cartItems       cartItems[]
+  cartItems        cartItems[]
 }

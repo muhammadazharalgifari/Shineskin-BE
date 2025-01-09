@@ -3,8 +3,8 @@ node_modules
 .env
 README.md
 /src/controllers/transaction/payment.js
-/src/controllers/transaction/createTransaction.js
-/src/controllers/transaction/updateTransaction.js
+/src/controllers/transaction/createTransactionOLD.js
+/src/controllers/transaction/updateTransactionOLD.js
 
 /src/routes/paymentRoute.js
 /prisma/db_backup.sqlite

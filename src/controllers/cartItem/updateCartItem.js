@@ -39,6 +39,16 @@ async function updateCartItemById(req = request, res = response) {
     // Menghitung subtotal_price yang baru
     const subtotalPrice = productPrice * quantity;
 
+    // Update stock produk
+    const newStock = cartItem.product.stock + (cartItem.quantity - quantity);
+
+    if (newStock < 0) {
+      return res.status(400).json({
+        status: "error",
+        message: "Product out of stock",
+      });
+    }
+
     const response = await db.cartItems.update({
       where: {
         id: cartItemId,
@@ -57,6 +67,16 @@ async function updateCartItemById(req = request, res = response) {
         message: `Cart item with ID ${id} not found`,
       });
     }
+
+    // update Product stock
+    const updateStock = await db.products.update({
+      where: {
+        id: cartItem.productId,
+      },
+      data: {
+        stock: newStock,
+      },
+    });
 
     // update Transaction total_price
     const updateTransaction = await updateTransactionTotal(userId);

@@ -25,7 +25,6 @@ async function validateMiddleUser(req = request, res = response, next) {
     req.userId = decoded.userId;
     next();
   } catch (error) {
-    console.log(error);
     // apabila token expired
     if (error.name === "TokenExpiredError") {
       return res.status(400).json({

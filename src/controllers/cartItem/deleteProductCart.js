@@ -36,6 +36,25 @@ async function deleteProductCart(req = request, res = response) {
       }
     });
 
+    // update Product stock
+    const updateStock = await db.products.update({
+      where: {
+        id: findCartItem.productId,
+      },
+      data: {
+        stock: {
+          increment: findCartItem.quantity,
+        },
+      },
+    });
+
+    if (!updateStock) {
+      return res.status(404).json({
+        status: "error",
+        message: `Product with ID ${findCartItem.productId} not found`,
+      });
+    }
+
     // update Transaction total_price
     const updateTransaction = await updateTransactionTotal(userId);
 
