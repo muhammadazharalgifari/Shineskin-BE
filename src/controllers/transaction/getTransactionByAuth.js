@@ -3,10 +3,8 @@ import db from "../../connector";
 
 async function getTransactionByAuth(req = request, res = response) {
   try {
-
     // current user
     const userId = req.userId;
-
 
     if (isNaN(userId)) {
       return res.status(400).json({
@@ -25,7 +23,7 @@ async function getTransactionByAuth(req = request, res = response) {
         status: true,
         total_price: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
       },
     });
 
