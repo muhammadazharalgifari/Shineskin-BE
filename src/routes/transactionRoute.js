@@ -4,6 +4,7 @@ import { validateMiddleUser } from "../middleware/validateMiddleUser.js";
 import { getTransactionByAuth } from "../controllers/transaction/getTransactionByAuth.js";
 import adminOnly from "../middleware/adminOnly.js";
 import { updateTransaction, uploadUpdate } from "../controllers/transaction/updateTransaction.js";
+import { statusTransaction } from "../controllers/transaction/statusTransaction.js";
 
 const transactionRoute = new Router();
 
@@ -19,6 +20,14 @@ transactionRoute.put(
   validateMiddleUser,
   uploadUpdate.single("imageTransaction"),
   updateTransaction
+);
+
+// route update Status transaction CMS
+transactionRoute.put(
+  "/api/set-success/:id",
+  validateMiddleUser,
+  adminOnly,
+  statusTransaction
 );
 
 
