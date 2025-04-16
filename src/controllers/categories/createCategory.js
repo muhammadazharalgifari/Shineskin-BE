@@ -64,7 +64,7 @@ async function createCategory(req = request, res = response) {
       });
     }
 
-    const response = await prisma.categories.create({
+    const response = await db.categories.create({
       data: {
         name,
         description,

@@ -30,5 +30,4 @@ transactionRoute.put(
   statusTransaction
 );
 
-
 export default transactionRoute;

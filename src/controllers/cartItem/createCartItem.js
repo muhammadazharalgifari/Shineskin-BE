@@ -10,6 +10,27 @@ async function createCartItem(req = request, res = response) {
   const userId = req.userId;
 
   try {
+    // Periksa apakah transaction sudah ada untuk user
+    let transaction = await db.transactions.findFirst({
+      where: {
+        userId: parseInt(userId),
+        status: "PENDING",
+      },
+    });
+
+    // Jika transaction belum ada, buat baru
+    if (!transaction) {
+      transaction = await db.transactions.create({
+        data: {
+          userId: parseInt(userId),
+          total_price: 0, // Initial value 0
+          status: "PENDING",
+          paymentUrl: null,
+          imageTransaction: null,
+        },
+      });
+    }
+
     // Cari produk berdasarkan ID
     const product = await db.products.findUnique({
       where: {
@@ -41,32 +62,12 @@ async function createCartItem(req = request, res = response) {
       });
     }
 
-    // Periksa apakah transaction sudah ada untuk user
-    let transaction = await db.transactions.findFirst({
-      where: {
-        userId: parseInt(userId),
-        status: "PENDING", // initial Status
-      },
-    });
-
-    // Jika transaction belum ada, buat baru
-    if (!transaction) {
-      transaction = await db.transactions.create({
-        data: {
-          userId: parseInt(userId),
-          total_price: 0, // Awal total_price diatur ke 0
-          status: "PENDING",
-          paymentUrl: null,
-          imageTransaction: null,
-        },
-      });
-    }
-
-    // Periksa apakah produk sudah ada dalam keranjang untuk transaksi ini
+    // Periksa apakah produk sudah ada dalam keranjang untuk transaksi ini berdasarkan transaksi ID yang status nya masih PENDING
     const existingCartItem = await db.cartItems.findFirst({
       where: {
-        userId: parseInt(userId),
+        transactionId: transaction.id,
         productId: parseInt(productId),
+        userId: parseInt(userId),
       },
     });
     if (existingCartItem) {
