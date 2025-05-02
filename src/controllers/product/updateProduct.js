@@ -3,6 +3,7 @@ import db from "../../connector";
 import path from "path";
 import fs from "fs";
 import multer from "multer";
+import { v4 as uuidv4 } from "uuid";
 
 // konfigurasi tempat penyimpanan gambar
 const uploadDir = path.join(__dirname, "../../../public/imageProducts");
@@ -13,10 +14,14 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
-    const newNameProduct = req.body.name;
-    const randomDataProduct = newNameProduct.replace(/[^a-zA-Z0-9]/g, "_");
+    const newNameProduct = req.body.name || "product";
+    const cleanName = newNameProduct.replace(/[^a-zA-Z0-9]/g, "_");
+    const uniqueSuffix = Date.now() + "_" + uuidv4();
 
-    cb(null, randomDataProduct + path.extname(file.originalname));
+    const finalName = `${cleanName}_${uniqueSuffix}${path.extname(
+      file.originalname
+    )}`;
+    cb(null, finalName);
   },
 });
 
@@ -59,6 +64,7 @@ const updateProduct = async (req = request, res = response) => {
     }
 
     let updateImageProduct = product.imageProduct;
+
     if (req.file) {
       // hapus foto lama
       const imagePath = path.resolve(
@@ -66,10 +72,14 @@ const updateProduct = async (req = request, res = response) => {
         "../../../public/imageProducts",
         product.imageProduct
       );
-      if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
+
+      try {
+        if (fs.existsSync(imagePath)) {
+          fs.unlinkSync(imagePath);
+        }
+      } catch (unlinkError) {
+        console.error("Gagal menghapus gambar lama:", unlinkError.message);
       }
-      // upload foto baru
       updateImageProduct = req.file.filename;
     }
 
