@@ -50,8 +50,6 @@ async function createUser(req = request, res = response) {
   const hashPassword = await bcrypt.hash(password, 10);
 
   try {
-
-
     // validasi username
     const existingUsernameAndEmail = await db.users.findFirst({
       where: {
@@ -67,6 +65,7 @@ async function createUser(req = request, res = response) {
       });
     }
 
+    const imageProfileFilename = req.file ? req.file.filename : "user.png";
 
     const response = await db.users.create({
       data: {
@@ -74,7 +73,7 @@ async function createUser(req = request, res = response) {
         email,
         password: hashPassword,
         role,
-        imageProfile: req.file.filename,
+        imageProfile: imageProfileFilename,
       },
     });
     res.status(201).json({
