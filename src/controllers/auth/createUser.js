@@ -72,7 +72,7 @@ async function createUser(req = request, res = response) {
         username,
         email,
         password: hashPassword,
-        role,
+        role: role || "user",
         imageProfile: imageProfileFilename,
       },
     });
