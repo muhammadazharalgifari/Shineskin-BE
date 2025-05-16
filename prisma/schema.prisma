@@ -87,3 +87,17 @@ model transactions {
 
   cartItems        cartItems[]
 }
+
+model dailySales {
+  id               Int         @id @default(autoincrement())
+  date             DateTime    @unique
+  totalSales       Decimal
+  createdAt        DateTime    @default(now())
+}
+
+model monthlySales {
+  id               Int         @id @default(autoincrement())
+  month            DateTime    @unique
+  totalSales       Decimal
+  createdAt        DateTime    @default(now())
+}

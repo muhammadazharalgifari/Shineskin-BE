@@ -1,5 +1,10 @@
+import { utcToZonedTime } from "date-fns-tz";
 import { request, response } from "express";
 import db from "../../connector";
+import {
+  updateDailySalesForDate,
+  updateMonthlySalesForDate,
+} from "../../controllers/cron/cronController.js";
 
 const statusTransaction = async (req = request, res = response) => {
   try {
@@ -8,38 +13,41 @@ const statusTransaction = async (req = request, res = response) => {
     const transaction = await db.transactions.findUnique({
       where: {
         id: transactionId,
-        status: "PENDING",
       },
     });
 
     if (!transaction || transaction.status !== "PENDING") {
       return res.status(404).json({
         status: "error",
-        message: "Transaction not found / DONE Status SUCCESS",
+        message: "Transaction not found or already processed.",
       });
     }
 
-    const response = await db.transactions.update({
-      where: {
-        id: transactionId,
-      },
-      data: {
-        status: "SUCCESS",
-      },
+    const updatedTransaction = await db.transactions.update({
+      where: { id: transactionId },
+      data: { status: "SUCCESS" },
     });
 
-    res.status(200).json({
+    const createdAtJakarta = utcToZonedTime(
+      updatedTransaction.createdAt,
+      "Asia/Jakarta"
+    );
+
+    // Update daily dan monthly sales
+    await updateDailySalesForDate(createdAtJakarta);
+    await updateMonthlySalesForDate(createdAtJakarta);
+
+    return res.status(200).json({
       status: "success",
-      data: response,
+      data: updatedTransaction,
     });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
+    console.error("Error in statusTransaction:", error);
+    return res.status(500).json({
       status: "error",
-      message: error.message,
+      message: "Internal server error.",
     });
   }
-}
-
+};
 
 export { statusTransaction };

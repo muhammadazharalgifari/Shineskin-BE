@@ -63,7 +63,7 @@ async function createUser(req = request, res = response) {
         status: "error",
         message: "Username or email already exists",
       });
-    }
+    } 
 
     const imageProfileFilename = req.file ? req.file.filename : "user.png";
 

@@ -7,6 +7,8 @@ import categoryRoute from "./routes/categoryRoute";
 import productRoute from "./routes/productRoute";
 import cartItemRoute from "./routes/cartItemRoute";
 import transactionRoute from "./routes/transactionRoute";
+import { setupCronJobs } from "./controllers/cron/cronController";
+import salesRoute from "./routes/salesRoute";
 // import paymentRoute from "./routes/paymentRoute";
 
 // configuration
@@ -56,6 +58,7 @@ app.use(productRoute);
 app.use(categoryRoute);
 app.use(cartItemRoute);
 app.use(transactionRoute);
+app.use(salesRoute);
 // app.use(paymentRoute);
 
 app.listen(PORT, () => {
@@ -66,4 +69,6 @@ app.listen(PORT, () => {
     
     ===========================
     `);
+
+  setupCronJobs();
 });
