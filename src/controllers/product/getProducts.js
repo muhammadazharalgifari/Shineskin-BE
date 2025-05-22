@@ -13,6 +13,10 @@ async function getProducts(req = request, res = response) {
         imageProduct: true,
         userId: true,
         categoryId: true,
+        isPromo: true,
+        promoPrice: true,
+        promoStart: true,
+        promoEnd: true,
       },
     });
     res.status(200).json({

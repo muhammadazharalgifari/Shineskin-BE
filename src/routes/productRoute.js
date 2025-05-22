@@ -10,6 +10,7 @@ import {
 } from "../controllers/product/updateProduct.js";
 import adminOnly from "../middleware/adminOnly.js";
 import { getProductById } from "../controllers/product/getProductById.js";
+import { getPromoProducts } from "../controllers/product/getPromoProducts.js";
 
 const productRoute = new Router();
 
@@ -23,10 +24,7 @@ productRoute.post(
 );
 
 // route all products
-productRoute.get("/api/products",
-  validateMiddleUser,
-  getProducts
-);
+productRoute.get("/api/products", validateMiddleUser, getProducts);
 
 // route delete product
 productRoute.delete(
@@ -44,6 +42,9 @@ productRoute.put(
   uploadUpdate.single("imageProduct"),
   updateProduct
 );
+
+// route get all products(promo)
+productRoute.get("/api/promo/products", validateMiddleUser, getPromoProducts);
 
 // route GetProductsBy CategoryId
 productRoute.get(

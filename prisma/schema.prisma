@@ -43,6 +43,10 @@ model products {
   id            Int           @id @default(autoincrement())
   name          String
   price         Int
+  promoPrice    Float?        // harga promo
+  isPromo       Boolean       @default(false)
+  promoStart    DateTime?     // tanggal mulai promo
+  promoEnd      DateTime?     // tanggal akhir promo
   description   String
   imageProduct  String
   stock         Int           @default(0)

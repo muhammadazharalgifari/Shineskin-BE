@@ -1,7 +1,10 @@
 import { request, response } from "express";
+import { zonedTimeToUtc } from "date-fns-tz";
 import multer from "multer";
 import path from "path";
 import db from "../../connector";
+
+const timeZone = "Asia/Jakarta";
 
 // konfigurasi tempat penyimpanan gambar
 const uploadDir = path.resolve(__dirname, "../../../public/imageProducts");
@@ -39,16 +42,38 @@ const upload = multer({
 });
 
 async function addProduct(req = request, res = response) {
-  const { name, description, price, stock } = req.body;
-  const { categoryId } = req.params;
+  const {
+    name,
+    description,
+    price,
+    stock,
+    promoPrice,
+    isPromo,
+    promoStart,
+    promoEnd,
+  } = req.body;
+  // const { categoryId } = req.params;
+  const categoryId = parseInt(req.body.categoryId, 10);
+
+  const filename = req.file?.filename;
+
+  if (!filename) {
+    return res.status(400).json({
+      status: "error",
+      message: "Gambar produk wajib diunggah",
+    });
+  }
   // current user
-  const userId = req.userId;
+  // const userId = req.userId;
+
+  // jika promo aktif
+  const isPromoBoolean = isPromo === "true" || isPromo === true;
 
   // Create a new product
   try {
     const category = await db.categories.findUnique({
       where: {
-        id: parseInt(categoryId),
+        id: categoryId,
       },
     });
 
@@ -59,15 +84,58 @@ async function addProduct(req = request, res = response) {
       });
     }
 
+    // validasi promo start dan end jika promo aktif
+    let promoStartUTC = null;
+    let promoEndUTC = null;
+
+    if (isPromoBoolean) {
+      if (!promoStart || !promoEnd) {
+        return res.status(400).json({
+          status: "error",
+          message: "Promo start and end dates are required",
+        });
+      }
+
+      promoStartUTC = zonedTimeToUtc(new Date(promoStart), timeZone);
+      promoEndUTC = zonedTimeToUtc(new Date(promoEnd), timeZone);
+
+      if (promoStartUTC > promoEndUTC) {
+        return res.status(400).json({
+          status: "error",
+          message: "Promo start date must be before the end date",
+        });
+      }
+
+      if (
+        promoPrice === undefined ||
+        promoPrice === null ||
+        Number(promoPrice) >= Number(price)
+      ) {
+        return res.status(400).json({
+          status: "error",
+          message:
+            "Promo price must be provided and less than the regular price.",
+        });
+      }
+    }
+
     const response = await db.products.create({
       data: {
         name,
         description,
-        price: parseInt(price),
-        stock: parseInt(stock),
-        imageProduct: req.file.filename,
-        userId,
-        categoryId: category.id,
+        price: Number(price),
+        stock: Number(stock),
+        imageProduct: filename,
+        isPromo: isPromo === "true",
+        promoPrice: promoPrice ? Number(promoPrice) : null,
+        promoStart: promoStart ? new Date(promoStart) : null,
+        promoEnd: promoEnd ? new Date(promoEnd) : null,
+        user: {
+          connect: { id: req.userId }, 
+        },
+        category: {
+          connect: { id: categoryId }, 
+        },
       },
     });
 

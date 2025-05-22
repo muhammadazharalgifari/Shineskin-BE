@@ -23,7 +23,7 @@ async function createCartItem(req = request, res = response) {
       transaction = await db.transactions.create({
         data: {
           userId: parseInt(userId),
-          total_price: 0, // Initial value 0
+          total_price: 0,
           status: "PENDING",
           paymentUrl: null,
           imageTransaction: null,
@@ -35,23 +35,20 @@ async function createCartItem(req = request, res = response) {
     const product = await db.products.findUnique({
       where: {
         id: parseInt(productId),
-        stock: {
-          gt: 0,
-        },
       },
     });
 
-    if (!product) {
+    if (!product || product.stock <= 0) {
       return res.status(404).json({
         status: "error",
-        message: "Product does not exist",
+        message: "Product does not exist or out of stock",
       });
     }
 
     if (product.stock < quantity) {
       return res.status(400).json({
         status: "error",
-        message: "Product out of stock",
+        message: "Product stock is not enough",
       });
     }
 
@@ -62,7 +59,7 @@ async function createCartItem(req = request, res = response) {
       });
     }
 
-    // Periksa apakah produk sudah ada dalam keranjang untuk transaksi ini berdasarkan transaksi ID yang status nya masih PENDING
+    // Periksa apakah produk sudah ada dalam keranjang
     const existingCartItem = await db.cartItems.findFirst({
       where: {
         transactionId: transaction.id,
@@ -70,6 +67,7 @@ async function createCartItem(req = request, res = response) {
         userId: parseInt(userId),
       },
     });
+
     if (existingCartItem) {
       return res.status(400).json({
         status: "error",
@@ -77,8 +75,11 @@ async function createCartItem(req = request, res = response) {
       });
     }
 
-    const subtotalPrice = product.price * quantity;
+    // Gunakan harga promo jika produk sedang promo
+    const unitPrice = product.isPromo ? product.promoPrice : product.price;
+    const subtotalPrice = unitPrice * quantity;
 
+    // Simpan ke cartItems
     const response = await db.cartItems.create({
       data: {
         transactionId: transaction.id,
@@ -89,7 +90,7 @@ async function createCartItem(req = request, res = response) {
       },
     });
 
-    // update Product stock
+    // Update stock produk
     const updateStock = await db.products.update({
       where: {
         id: parseInt(productId),
@@ -98,6 +99,7 @@ async function createCartItem(req = request, res = response) {
         stock: product.stock - quantity,
       },
     });
+
     if (!updateStock) {
       return res.status(500).json({
         status: "error",
@@ -105,8 +107,8 @@ async function createCartItem(req = request, res = response) {
       });
     }
 
-    // update Transaction total_price
-    const updateTransaction = await updateTransactionTotal(userId);
+    // Update total_price transaksi
+    await updateTransactionTotal(userId);
 
     res.status(201).json({
       status: "success",
@@ -123,3 +125,138 @@ async function createCartItem(req = request, res = response) {
 }
 
 export { createCartItem };
+// import { request, response } from "express";
+// import db from "../../connector";
+// import { updateTransactionTotal } from "../../service/transactionService";
+
+// async function createCartItem(req = request, res = response) {
+//   const { quantity } = req.body;
+//   const { productId } = req.params;
+
+//   // current user
+//   const userId = req.userId;
+
+//   try {
+//     // Periksa apakah transaction sudah ada untuk user
+//     let transaction = await db.transactions.findFirst({
+//       where: {
+//         userId: parseInt(userId),
+//         status: "PENDING",
+//       },
+//     });
+
+//     // Jika transaction belum ada, buat baru
+//     if (!transaction) {
+//       transaction = await db.transactions.create({
+//         data: {
+//           userId: parseInt(userId),
+//           total_price: 0,
+//           status: "PENDING",
+//           paymentUrl: null,
+//           imageTransaction: null,
+//         },
+//       });
+//     }
+
+//     // Cari produk berdasarkan ID
+//     const product = await db.products.findUnique({
+//       where: {
+//         id: parseInt(productId),
+//       },
+//     });
+
+//     if (!product || product.stock <= 0) {
+//       return res.status(404).json({
+//         status: "error",
+//         message: "Product does not exist or out of stock",
+//       });
+//     }
+
+//     if (product.stock < quantity) {
+//       return res.status(400).json({
+//         status: "error",
+//         message: "Product stock is not enough",
+//       });
+//     }
+
+//     if (!productId || !quantity) {
+//       return res.status(400).json({
+//         status: "error",
+//         message: "Missing required fields",
+//       });
+//     }
+
+//     // Periksa apakah produk sudah ada dalam keranjang
+//     const existingCartItem = await db.cartItems.findFirst({
+//       where: {
+//         transactionId: transaction.id,
+//         productId: parseInt(productId),
+//         userId: parseInt(userId),
+//       },
+//     });
+
+//     if (existingCartItem) {
+//       return res.status(400).json({
+//         status: "error",
+//         message: "Product already exists in the cart",
+//       });
+//     }
+
+//     // Tentukan harga berdasarkan status dan periode promo
+//     const now = new Date();
+//     const isPromoActive =
+//       product.isPromo &&
+//       product.startPromo &&
+//       product.endPromo &&
+//       new Date(product.startPromo) <= now &&
+//       now <= new Date(product.endPromo);
+
+//     const unitPrice = isPromoActive ? product.promoPrice : product.price;
+//     const subtotalPrice = unitPrice * quantity;
+
+//     // Simpan ke cartItems
+//     const response = await db.cartItems.create({
+//       data: {
+//         transactionId: transaction.id,
+//         productId: product.id,
+//         quantity,
+//         subtotal_price: subtotalPrice,
+//         userId,
+//       },
+//     });
+
+//     // Update stock produk
+//     const updateStock = await db.products.update({
+//       where: {
+//         id: parseInt(productId),
+//       },
+//       data: {
+//         stock: product.stock - quantity,
+//       },
+//     });
+
+//     if (!updateStock) {
+//       return res.status(500).json({
+//         status: "error",
+//         message: "Failed to update product stock",
+//       });
+//     }
+
+//     // Update total_price transaksi
+//     await updateTransactionTotal(userId);
+
+//     res.status(201).json({
+//       status: "success",
+//       message: "Cart item created successfully",
+//       data: response,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({
+//       status: "error",
+//       message: error.message,
+//     });
+//   }
+// }
+
+// export { createCartItem };
