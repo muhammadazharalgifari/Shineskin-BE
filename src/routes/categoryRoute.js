@@ -1,9 +1,13 @@
 import { Router } from "express";
-import { createCategory, upload } from "../controllers/categories/createCategory.js";
+import {
+  createCategory,
+  upload,
+} from "../controllers/categories/createCategory.js";
 import { deleteCategory } from "../controllers/categories/deteleCategory.js";
 import { getCategory } from "../controllers/categories/getCategory.js";
 import adminOnly from "../middleware/adminOnly.js";
 import { validateMiddleUser } from "../middleware/validateMiddleUser.js";
+import { getCategoryById } from "../controllers/categories/getCategoryById.js";
 
 const categoryRoute = new Router();
 
@@ -17,10 +21,13 @@ categoryRoute.post(
 );
 
 // route getall category
+categoryRoute.get("/api/categories", validateMiddleUser, getCategory);
+
+// route get category by id
 categoryRoute.get(
-  "/api/categories",
+  "/api/category/:id",
   validateMiddleUser,
-  getCategory
+  getCategoryById
 );
 
 // route delete category

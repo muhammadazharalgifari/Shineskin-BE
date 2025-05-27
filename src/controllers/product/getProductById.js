@@ -3,7 +3,7 @@ import db from "../../connector";
 
 async function getProductById(req = request, res = response) {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     const productId = parseInt(id);
 
     // validasi data param categoryId harus int
@@ -16,7 +16,7 @@ async function getProductById(req = request, res = response) {
 
     const response = await db.products.findMany({
       where: {
-        id: productId
+        id: productId,
       },
       select: {
         id: true,
@@ -25,7 +25,7 @@ async function getProductById(req = request, res = response) {
         description: true,
         imageProduct: true,
         stock: true,
-      }
+      },
     });
     // Jika Product tidak ditemukan
     if (!response) {
