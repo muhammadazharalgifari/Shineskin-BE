@@ -270,11 +270,6 @@ function isValidDate(date) {
   return date instanceof Date && !isNaN(date);
 }
 
-function safeParseDate(input) {
-  const parsed = new Date(input);
-  return isValidDate(parsed) ? parsed : null;
-}
-
 function getJakartaDate(date) {
   return utcToZonedTime(date, "Asia/Jakarta");
 }
@@ -282,8 +277,10 @@ function getJakartaDate(date) {
 // ======================= DAILY SALES =======================
 
 export async function updateDailySalesForDate(date) {
-  if (!isValidDate(date))
-    return console.error("[DAILY] ❌ Invalid date:", date);
+  if (!isValidDate(date)) {
+    console.error("[DAILY] ❌ Invalid date:", date);
+    return;
+  }
 
   const jakartaDate = getJakartaDate(date);
   const dayStart = startOfDay(jakartaDate);
@@ -304,6 +301,7 @@ export async function updateDailySalesForDate(date) {
       (sum, tx) => sum + Number(tx.total_price),
       0
     );
+
     const existing = await db.dailySales.findFirst({
       where: { date: dayStart },
     });
@@ -326,28 +324,38 @@ export async function updateDailySalesForDate(date) {
 }
 
 async function catchUpDailySales() {
-  const last = await db.dailySales.findFirst({ orderBy: { date: "desc" } });
-  const today = startOfDay(getJakartaDate(new Date()));
-  let cursor;
+  try {
+    const last = await db.dailySales.findFirst({
+      orderBy: { date: "desc" },
+    });
 
-  const lastDate = safeParseDate(last?.date);
-  cursor = lastDate
-    ? addDays(startOfDay(getJakartaDate(lastDate)), 1)
-    : subDays(today, 7);
+    const today = startOfDay(getJakartaDate(new Date()));
+    let cursor;
 
-  console.log("[DAILY] 🔁 Starting catch-up from:", cursor.toISOString());
+    if (last?.date instanceof Date && isValidDate(last.date)) {
+      cursor = addDays(startOfDay(getJakartaDate(last.date)), 1);
+    } else {
+      cursor = subDays(today, 7); // Default: 7 hari terakhir
+    }
 
-  while (isBefore(cursor, today)) {
-    await updateDailySalesForDate(cursor);
-    cursor = addDays(cursor, 1);
+    console.log("[DAILY] 🔁 Starting catch-up from:", cursor.toISOString());
+
+    while (isBefore(cursor, today)) {
+      await updateDailySalesForDate(cursor);
+      cursor = addDays(cursor, 1);
+    }
+  } catch (err) {
+    console.error("[DAILY] ❌ Unexpected crash:", err);
   }
 }
 
 // ======================= MONTHLY SALES =======================
 
 export async function updateMonthlySalesForDate(date) {
-  if (!isValidDate(date))
-    return console.error("[MONTHLY] ❌ Invalid date:", date);
+  if (!isValidDate(date)) {
+    console.error("[MONTHLY] ❌ Invalid date:", date);
+    return;
+  }
 
   const jakartaDate = getJakartaDate(date);
   const monthStart = startOfMonth(jakartaDate);
@@ -370,6 +378,7 @@ export async function updateMonthlySalesForDate(date) {
       (sum, tx) => sum + Number(tx.total_price),
       0
     );
+
     const existing = await db.monthlySales.findFirst({
       where: { month: monthStart },
     });
@@ -392,20 +401,28 @@ export async function updateMonthlySalesForDate(date) {
 }
 
 async function catchUpMonthlySales() {
-  const last = await db.monthlySales.findFirst({ orderBy: { month: "desc" } });
-  const thisMonth = startOfMonth(getJakartaDate(new Date()));
-  let cursor;
+  try {
+    const last = await db.monthlySales.findFirst({
+      orderBy: { month: "desc" },
+    });
 
-  const lastMonth = safeParseDate(last?.month);
-  cursor = lastMonth
-    ? addMonths(startOfMonth(getJakartaDate(lastMonth)), 1)
-    : subMonths(thisMonth, 6);
+    const thisMonth = startOfMonth(getJakartaDate(new Date()));
+    let cursor;
 
-  console.log("[MONTHLY] 🔁 Starting catch-up from:", cursor.toISOString());
+    if (last?.month instanceof Date && isValidDate(last.month)) {
+      cursor = addMonths(startOfMonth(last.month), 1);
+    } else {
+      cursor = subMonths(thisMonth, 6); // Default: 6 bulan terakhir
+    }
 
-  while (isBefore(cursor, thisMonth)) {
-    await updateMonthlySalesForDate(cursor);
-    cursor = addMonths(cursor, 1);
+    console.log("[MONTHLY] 🔁 Starting catch-up from:", cursor.toISOString());
+
+    while (isBefore(cursor, thisMonth)) {
+      await updateMonthlySalesForDate(cursor);
+      cursor = addMonths(cursor, 1);
+    }
+  } catch (err) {
+    console.error("[MONTHLY] ❌ Unexpected crash:", err);
   }
 }
 
@@ -422,6 +439,7 @@ export async function setupCronJobs() {
   cron.schedule("0 0 * * *", async () => {
     const nowJakarta = getJakartaDate(new Date());
     const yesterday = subDays(startOfDay(nowJakarta), 1);
+
     console.log(
       "[CRON DAILY] 🕛 Running for:",
       yesterday.toISOString().slice(0, 10)
@@ -439,6 +457,7 @@ export async function setupCronJobs() {
   cron.schedule("0 0 1 * *", async () => {
     const nowJakarta = getJakartaDate(new Date());
     const lastMonth = subMonths(startOfMonth(nowJakarta), 1);
+
     console.log(
       "[CRON MONTHLY] 🕛 Running for:",
       lastMonth.toISOString().slice(0, 7)
