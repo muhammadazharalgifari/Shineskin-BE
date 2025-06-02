@@ -11,7 +11,7 @@ async function getCartItemByUserId(req = request, res = response) {
         userId: parseInt(userId),
         status: "PENDING",
       },
-      select:{
+      select: {
         cartItems: {
           select: {
             id: true,
@@ -23,12 +23,12 @@ async function getCartItemByUserId(req = request, res = response) {
                 name: true,
                 price: true,
                 imageProduct: true,
-              }
-            }
-          }
-        }
-      }
-    })
+              },
+            },
+          },
+        },
+      },
+    });
     if (isNaN(userId)) {
       return res.status(400).json({
         status: "error",
@@ -37,9 +37,11 @@ async function getCartItemByUserId(req = request, res = response) {
     }
 
     if (!response) {
-      return res.status(404).json({
-        status: "error",
-        message: `Cart item with User ID ${userId} not found`,
+      return res.status(200).json({
+        status: "success",
+        data: [],
+        transaction_id: null,
+        total_price: 0,
       });
     }
 
@@ -69,8 +71,8 @@ async function getCartItemByUserId(req = request, res = response) {
     res.status(200).json({
       status: "success",
       data: formatterCartItems,
-      transaction_id: totalPrice?totalPrice.id:null,
-      total_price: totalPrice?totalPrice.total_price:0,
+      transaction_id: totalPrice ? totalPrice.id : null,
+      total_price: totalPrice ? totalPrice.total_price : 0,
     });
   } catch (error) {
     console.log(error);
